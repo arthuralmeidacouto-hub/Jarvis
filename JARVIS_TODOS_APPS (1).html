@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#030916"><title>JARVIS — Assistente IA com voz</title>
+<style>
+:root{--cyan:#63edff;--muted:#91bdca;--panel:rgba(5,19,38,.92);--line:rgba(99,237,255,.3)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(ellipse at 50% 16%,#0b3151 0,#030916 55%,#01040b 100%);color:#e9fbff;font-family:Arial,Segoe UI,sans-serif}
+body{padding:17px 13px 28px}.wrap{max-width:760px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center}.brand{font-size:23px;font-weight:900;letter-spacing:5px;text-shadow:0 0 22px #29dfff}.sub{font-size:9px;letter-spacing:2px;color:var(--muted);margin-top:5px}.status{font-size:10px;color:#9af6ff;border:1px solid var(--line);border-radius:20px;padding:8px 10px;background:#05172a}
+.core{display:flex;flex-direction:column;align-items:center;margin:23px 0 18px}.orb{width:150px;height:150px;border-radius:50%;position:relative;display:grid;place-items:center;background:radial-gradient(circle,#0a3855 0,#061a30 48%,#020916 70%);box-shadow:0 0 35px #00cfff35,inset 0 0 30px #2deaff22;border:1px solid #58eaff66}
+.orb:before,.orb:after{content:"";position:absolute;border:1px solid #63edff77;border-radius:50%;inset:10px;box-shadow:0 0 16px #20dfff44}.orb:after{inset:-8px;border-style:dashed;opacity:.55;animation:spin 25s linear infinite}
+.inner{width:68px;height:68px;border-radius:50%;border:1px solid #6ff2ff99;box-shadow:0 0 24px #3cecff88,inset 0 0 22px #3cecff55;display:grid;place-items:center;color:#9ff8ff;font-size:27px}
+@keyframes spin{to{transform:rotate(360deg)}}.orb.think{animation:pulse 1.3s ease-in-out infinite}@keyframes pulse{50%{box-shadow:0 0 65px #00dfff88,inset 0 0 35px #2deaff44}}
+#headline{font-size:16px;font-weight:bold;margin-top:15px;text-align:center}#subline{font-size:10px;color:var(--muted);margin-top:5px;text-align:center}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px;margin:11px 0;backdrop-filter:blur(12px);box-shadow:0 8px 30px #0003}
+h3{font-size:10px;letter-spacing:2px;color:var(--cyan);margin:0 0 10px}
+#chat{height:250px;overflow:auto;display:flex;flex-direction:column;gap:9px;padding:2px}
+.msg{max-width:90%;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.user{align-self:flex-end;background:#07506a;border:1px solid #5ceaff55}.assistant{align-self:flex-start;background:#0a2035;border:1px solid #72dff322}
+#entry,.customInput{width:100%;padding:13px;border-radius:9px;border:1px solid var(--line);background:#031326;color:white;font-size:14px;outline:none}
+.row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}button{background:#082a43;color:#eaffff;border:1px solid #56e7ff66;border-radius:9px;padding:11px 12px;font-size:11px;font-weight:bold;cursor:pointer}button.primary{background:linear-gradient(135deg,#08799a,#07516f);box-shadow:0 0 18px #00cfff24}.row button{flex:1}button:disabled{opacity:.45}
+.note{font-size:10px;line-height:1.5;color:#8db8c5}.links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.links a{color:#8ff2ff;font-size:11px;text-decoration:none;text-align:center;border:1px solid #4eddf344;padding:10px 5px;border-radius:8px;background:#061a2c}
+.small{font-size:10px;color:var(--muted);line-height:1.5}.modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;padding:20px;z-index:10}.dialog{max-width:360px;width:100%;background:#071b30;border:1px solid #63edff88;border-radius:16px;padding:20px;text-align:center;box-shadow:0 0 45px #00cfff33}.dialog h2{font-size:18px;color:var(--cyan);margin:0 0 10px}.dialog p{font-size:13px;line-height:1.5;color:#c7e9f0}.dialog .row{margin-top:16px}.dialog button{flex:1}.voiceOn{border-color:#5effa8!important;color:#8cffba!important}
+@media(max-width:390px){.links{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+<script src="https://js.puter.com/v2/"></script>
+</head>
+<body><main class="wrap">
+<div class="top"><div><div class="brand">J.A.R.V.I.S.</div><div class="sub">JUST A RATHER VERY INTELLIGENT SYSTEM</div></div><div class="status" id="status">● ONLINE</div></div>
+<section class="core"><div class="orb" id="orb"><div class="inner">J</div></div><div id="headline">À sua disposição, senhor.</div><div id="subline">IA conectável · Voz e texto</div></section>
+<section class="panel"><h3>CONVERSA COM JARVIS</h3><div id="chat"><div class="msg assistant">Olá, senhor. O módulo de voz está disponível. Toque em ATIVAR VOZ e autorize o microfone quando o Android perguntar.</div></div>
+<input id="entry" placeholder="Digite sua mensagem para o JARVIS..." autocomplete="off">
+<div class="row"><button class="primary" id="send">ENVIAR</button><button id="voice">🎙 ATIVAR VOZ</button><button id="speak">🔊 LER RESPOSTA</button><button id="clear">LIMPAR</button></div>
+<div class="small" id="voiceState">Microfone desligado.</div>
+</section>
+<section class="panel"><h3>ATALHOS DE APLICATIVOS E SERVIÇOS</h3><div class="links" id="appLinks"></div><p class="note">Estes atalhos abrem os serviços no navegador ou no aplicativo, quando o Android permitir. Uma página HTML não consegue descobrir automaticamente todos os aplicativos instalados no celular nem garantir a abertura de qualquer app.</p>
+<h3 style="margin-top:16px">ADICIONAR SEU PRÓPRIO ATALHO</h3><input class="customInput" id="appName" placeholder="Nome do aplicativo"><div style="height:7px"></div><input class="customInput" id="appUrl" placeholder="Link do app ou site (https://...)"><div class="row"><button class="primary" id="addApp">ADICIONAR ATALHO</button></div><div class="small">Para aplicativos instalados, use o link oficial/de compartilhamento do app, se houver. O navegador pode bloquear alguns links diretos.</div>
+</section>
+
+<section class="panel" id="messagePanel"><h3>ENVIAR MENSAGEM PARA UM CONTATO</h3>
+<p class="note">O JARVIS pode preparar uma mensagem e abrir o WhatsApp ou o app de SMS. Por segurança, você confere e toca em Enviar dentro do aplicativo. Esta página não consegue ler sua agenda de contatos automaticamente.</p>
+<input class="customInput" id="contactName" placeholder="Nome do contato (opcional)">
+<div style="height:7px"></div>
+<input class="customInput" id="contactPhone" inputmode="tel" placeholder="Número com DDD (ex.: 77999998888)">
+<div style="height:7px"></div>
+<textarea class="customInput" id="messageText" rows="3" placeholder="Escreva a mensagem..." style="resize:vertical"></textarea>
+<div class="row"><button class="primary" id="prepareWhats">ABRIR WHATSAPP</button><button id="prepareSms">ABRIR SMS</button></div>
+<div class="small" id="messageStatus">A mensagem será aberta como rascunho; você ainda precisará confirmar o envio.</div>
+</section>
+<section class="panel"><h3>INFORMAÇÕES IMPORTANTES</h3><p class="note">Ao tocar em ATIVAR VOZ, o JARVIS pergunta primeiro “Ativar microfone? Sim ou não?”. Se escolher SIM, o navegador/Android ainda mostrará a autorização oficial do microfone, quando necessária. Escolher NÃO não ativa nem usa o microfone.</p><p class="note">O reconhecimento de voz depende do suporte do navegador e da conexão. A página não fica ouvindo em segundo plano depois que você fecha ou minimiza o navegador.</p><p class="note">O cérebro usa Puter.js. O serviço pode pedir autenticação e ter limites de uso; não é uso ilimitado garantido. Se aparecer pedido de pagamento, não aceite. Peça ajuda a um responsável antes de criar conta ou autorizar qualquer cobrança.</p></section>
+</main>
+<div class="modal" id="micModal" role="dialog" aria-modal="true" aria-labelledby="micTitle"><div class="dialog"><h2 id="micTitle">J.A.R.V.I.S. — MICROFONE</h2><p>Deseja ativar o microfone? Ao tocar em SIM, o Chrome/Android poderá mostrar uma segunda janela oficial pedindo permissão.</p><div class="row"><button class="primary" id="micYes">SIM, ATIVAR</button><button id="micNo">NÃO</button></div></div></div>
+<script>
+const $=id=>document.getElementById(id);
+const history=[{role:'system',content:'Você é JARVIS, um assistente pessoal de IA em português brasileiro. Fale de forma educada, inteligente, objetiva e levemente futurista, chamando o usuário de senhor quando natural. Explique limites com honestidade. Você não controla o Android nem abre apps por conta própria; não diga que executou ações que não executou. O usuário é jovem: use linguagem clara e segura.'}];
+let lastAnswer='', recognition=null, listening=false;
+function addMessage(text,who){const d=document.createElement('div');d.className='msg '+who;d.textContent=text;$('chat').appendChild(d);$('chat').scrollTop=$('chat').scrollHeight;return d;}
+function setBusy(b){$('send').disabled=b;$('orb').classList.toggle('think',b);$('status').textContent=b?'◌ PROCESSANDO':'● ONLINE';$('headline').textContent=b?'Analisando sua solicitação...':'À sua disposição, senhor.';}
+async function send(){const text=$('entry').value.trim();if(!text)return;$('entry').value='';addMessage(text,'user');history.push({role:'user',content:text});setBusy(true);
+ try{if(!window.puter||!puter.ai||!puter.ai.chat)throw new Error('A biblioteca de IA não carregou. Verifique a internet e recarregue a página.');
+ const result=await puter.ai.chat(history,{model:'gpt-5.4-nano'});let answer=result?.message?.content??result?.text??result;if(Array.isArray(answer))answer=answer.map(x=>x.text||'').join('\n');if(typeof answer!=='string')answer=JSON.stringify(answer);lastAnswer=answer;history.push({role:'assistant',content:answer});addMessage(answer,'assistant');
+ }catch(e){addMessage('Não consegui conectar ao serviço de IA: '+(e?.message||String(e))+' Verifique a internet. Se aparecer pedido de login ou pagamento, peça ajuda a um responsável e não autorize cobranças.','assistant');history.pop();}
+ finally{setBusy(false);}}
+$('send').onclick=send;$('entry').addEventListener('keydown',e=>{if(e.key==='Enter')send();});
+$('clear').onclick=()=>{$('chat').innerHTML='';history.splice(1);lastAnswer='';addMessage('Conversa limpa. Estou pronto, senhor.','assistant');if('speechSynthesis'in window)speechSynthesis.cancel();};
+$('speak').onclick=()=>{if(!lastAnswer){addMessage('Ainda não há uma resposta para ler em voz alta.','assistant');return;}if(!('speechSynthesis'in window)){addMessage('Este navegador não oferece leitura de voz.','assistant');return;}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(lastAnswer);u.lang='pt-BR';u.rate=.96;u.pitch=.82;speechSynthesis.speak(u);};
+let micStream=null;
+function explainMicError(e){
+ const n=e?.name||'Erro desconhecido';
+ const map={
+  NotAllowedError:'O Android ou navegador bloqueou a permissão. No Chrome: três pontinhos > Configurações > Configurações do site > Microfone > Permitir. Confira também a permissão do Chrome nas Configurações do Android.',
+  PermissionDeniedError:'A permissão foi negada. Libere o microfone nas configurações do Chrome e nas permissões do aplicativo Chrome no Android.',
+  NotFoundError:'Não encontrei um microfone disponível neste dispositivo.',
+  NotReadableError:'O microfone está ocupado por outro aplicativo. Feche outros apps que usam o microfone e tente novamente.',
+  SecurityError:'O navegador bloqueou o microfone por segurança. Abra o arquivo no Google Chrome; se continuar, será necessário abrir a página por um endereço HTTPS.',
+  TypeError:'Este modo de abertura não permite acessar o microfone. Abra o arquivo diretamente no Google Chrome ou use uma página HTTPS.'
+ };
+ return map[n]||('Falha: '+n+'. '+(e?.message||'Tente abrir no Google Chrome atualizado.'));
+}
+function stopVoice(){
+ listening=false;
+ if(recognition){try{recognition.onend=null;recognition.stop()}catch(e){}}
+ recognition=null;
+ if(micStream){micStream.getTracks().forEach(t=>t.stop());micStream=null;}
+ $('voice').classList.remove('voiceOn');$('voice').textContent='🎙 ATIVAR VOZ';
+ $('voiceState').textContent='Microfone desligado.';
+ $('headline').textContent='À sua disposição, senhor.';
+}
+async function startVoice(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!navigator.mediaDevices?.getUserMedia){addMessage('Este modo de abertura não oferece acesso ao microfone. Abra o arquivo no Google Chrome atualizado. Se ainda falhar, a página precisará estar hospedada em HTTPS.','assistant');return;}
+ if(!SR){addMessage('O microfone pode ser autorizado, mas este navegador não oferece reconhecimento de voz. Tente no Google Chrome atualizado.','assistant');return;}
+ $('voiceState').textContent='Solicitando permissão do microfone...';$('micYes').disabled=true;
+ try{
+  micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+  recognition=new SR();recognition.lang='pt-BR';recognition.continuous=true;recognition.interimResults=false;recognition.maxAlternatives=1;
+  recognition.onstart=()=>{listening=true;$('voice').classList.add('voiceOn');$('voice').textContent='⏹ PARAR VOZ';$('voiceState').textContent='Microfone autorizado — estou ouvindo.';$('headline').textContent='Ouvindo sua voz...';};
+  recognition.onresult=e=>{const result=e.results[e.results.length-1];if(!result.isFinal)return;const t=result[0].transcript.trim();if(!t)return;$('entry').value=t;send();};
+  recognition.onerror=e=>{const msg={'not-allowed':'O navegador não autorizou o reconhecimento. Verifique a permissão de microfone do Chrome.','service-not-allowed':'O serviço de reconhecimento de voz foi bloqueado pelo navegador.','audio-capture':'Não foi possível capturar áudio do microfone.','network':'O reconhecimento de voz precisa de conexão com a internet.','no-speech':'Não detectei fala. Tente falar mais perto do celular.'}[e.error]||('Erro no reconhecimento: '+e.error);$('voiceState').textContent=msg;if(['not-allowed','service-not-allowed','audio-capture'].includes(e.error))stopVoice();};
+  recognition.onend=()=>{if(listening&&recognition){try{recognition.start()}catch(e){stopVoice();}}};
+  recognition.start();
+ }catch(e){if(micStream){micStream.getTracks().forEach(t=>t.stop());micStream=null;}$('voiceState').textContent=explainMicError(e);addMessage(explainMicError(e),'assistant');}
+ finally{$('micYes').disabled=false;}
+}
+$('voice').onclick=()=>{if(listening){stopVoice();return;}$('micModal').style.display='flex';};
+$('micNo').onclick=()=>{$('micModal').style.display='none';$('voiceState').textContent='Você escolheu não ativar o microfone.';};
+$('micYes').onclick=()=>{$('micModal').style.display='none';startVoice();};
+$('addApp').onclick=()=>{const name=$('appName').value.trim(),url=$('appUrl').value.trim();if(!name||!url){addMessage('Preencha o nome e o link do aplicativo.','assistant');return;}try{const parsed=new URL(url);if(!['https:','http:','intent:'].includes(parsed.protocol))throw new Error();const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';a.textContent=name;$('appLinks').appendChild(a);$('appName').value='';$('appUrl').value='';addMessage('Atalho "'+name+'" adicionado nesta sessão.','assistant');}catch(e){addMessage('Link inválido. Use um endereço https:// ou http:// válido.','assistant');}};
+
+
+const jarvisApps = [["Poe", "com.poe.android"], ["PokéCardex", "com.pokecardex.app"], ["Prime Video", "com.amazon.avod.thirdpartyclient"], ["ProjectBreach2", "com.nosixfive.projectbreach2"], ["Resultados", "", "https://www.google.com/search?q=Resultados+app"], ["Rewards", "com.google.android.apps.rewards"], ["Rock Identifier", "com.rockidentifier"], ["Samsung Pass", "com.samsung.android.samsungpass"], ["Samsung Shop", "com.samsung.ecomm.global"], ["Shazam", "com.shazam.android"], ["Shopee", "com.shopee.br"], ["Shopee Seller", "com.shopee.seller.br"], ["Sketchfab", "com.sketchfab.sketchfab"], ["Snes9x EX+", "com.explusalpha.Snes9x"], ["Solar System Scope", "air.com.martinmagni.solarsystemscope"], ["Soul Knight Prequel", "com.chillyroom.soulknightprequel"], ["Spotify", "com.spotify.music"], ["Galaxy Store", "com.sec.android.app.samsungapps"], ["Stumble Guys", "com.kitkagames.fallbuddies"], ["Subway Surfers", "com.kiloo.subwaysurf"], ["Super Zoom", "", "https://play.google.com/store/search?q=Super%20Zoom&c=apps"], ["Telefone Google", "com.google.android.dialer"], ["Telefone Samsung", "com.samsung.android.dialer"], ["TikTok", "com.zhiliaoapp.musically"], ["Truecaller", "com.truecaller"], ["Ultra Zoom Camera", "", "https://play.google.com/store/search?q=Ultra%20Zoom%20Camera&c=apps"], ["UniMote", "com.unimote"], ["WhatsApp", "com.whatsapp"], ["WiGLE Wifi", "net.wigle.wigleandroid"], ["WizMe", "", "https://play.google.com/store/search?q=WizMe&c=apps"], ["YouTube Create", "com.google.android.apps.youtube creación"], ["ZArchiver", "ru.zdevs.zarchiver"], ["Zepp", "com.huami.watch.hmwatchmanager"], ["dietbox", "br.com.dietbox"], ["Discord", "com.discord"], ["Facebook", "com.facebook.katana"], ["Galeria Samsung", "com.sec.android.gallery3d"], ["Galileu Aluno", "", "https://play.google.com/store/search?q=Galileu%20Aluno&c=apps"], ["Gboard", "com.google.android.inputmethod.latin"], ["Geekie One", "", "https://play.google.com/store/search?q=Geekie%20One&c=apps"], ["Geometry Dash", "com.robtopx.geometryjump"], ["Meus Arquivos", "com.sec.android.app.myfiles"], ["GitHub", "com.github.android"], ["GLB Viewer", "", "https://play.google.com/store/search?q=GLB%20Viewer&c=apps"], ["Godot Engine 4", "org.godotengine.editor.v4"], ["Google Earth", "com.google.earth"], ["Google One", "com.google.android.apps.subscriptions.red"], ["gov.br", "br.gov.meugovbr"], ["Gun Sounds", "", "https://play.google.com/store/search?q=Gun%20Sounds&c=apps"], ["HappyMod", "", "https://play.google.com/store/search?q=HappyMod&c=apps"], ["HBO Max", "com.wbd.stream"], ["Google Home", "com.google.android.apps.chromecast.app"], ["Human Error", "", "https://play.google.com/store/search?q=Human%20Error%20game&c=apps"], ["IGames PSP", "", "https://play.google.com/store/search?q=IGames%20PSP&c=apps"], ["Instagram", "com.instagram.android"], ["Instagram Lite", "com.instagram.lite"], ["Inter", "br.com.intermedium"], ["ITsMagic 2.0", "", "https://play.google.com/store/search?q=ITsMagic&c=apps"], ["Jarvis Assistant", "", "https://play.google.com/store/search?q=Jarvis%20Assistant&c=apps"], ["Kindle", "com.amazon.kindle"], ["Level Devil", "com.unept.leveldevil"], ["LG ThinQ", "com.lgeha.nuts"], ["MacroDroid", "com.arlosoft.macrodroid"], ["Max2d", "", "https://play.google.com/store/search?q=Max2D&c=apps"], ["MediBang Paint", "com.medibang.android.paint.tablet"], ["Méliuz", "br.com.meliuz"], ["Samsung Members", "com.samsung.android.voc"], ["Mensagens", "com.google.android.apps.messaging"], ["Menu Claro", "", "https://play.google.com/store/search?q=Menu%20Claro&c=apps"], ["Mercado Livre", "com.mercadolibre"], ["Messenger", "com.facebook.orca"], ["Mi Video", "com.miui.videoplayer"], ["Minecraft", "com.mojang.minecraftpe"], ["Música", "com.sec.android.app.music"], ["My Boy!", "com.fastemulator.gba"], ["Samsung Notes", "com.samsung.android.app.notes"], ["Notícia", "", "https://play.google.com/store/search?q=Not%C3%ADcia&c=apps"], ["Google Notícias", "com.google.android.apps.magazines"], ["nRF Connect", "no.nordicsemi.android.mcp"], ["Cronômetro", "", "https://play.google.com/store/search?q=cronometro&c=apps"], ["Otherworld Legends", "com.chillyroom.zhmr.gp"], ["PAC-MAN 256", "eu.bandainamcoent.pacman256"], ["Pinterest", "com.pinterest"], ["Plague Inc.", "com.miniclip.plagueinc"], ["Google Play Games", "com.google.android.play.games"], ["Play Livros", "com.google.android.apps.books"], ["Play Store", "com.android.vending"], ["Plurall", "br.com.plurall"], ["Google Podcasts", "", "https://play.google.com/store/search?q=podcasts&c=apps"], ["Brawl Time Ninja", "", "https://brawltime.ninja/"], ["Bússola", "", "https://play.google.com/store/search?q=compass&c=apps"], ["Calculadora", "com.google.android.calculator"], ["Calendário", "com.google.android.calendar"], ["Câmera", "com.sec.android.app.camera"], ["Camera GCam", "", "https://play.google.com/store/search?q=GCam&c=apps"], ["Canva", "com.canva.editor"], ["Carteira Google", "com.google.android.apps.walletnfcrel"], ["Clash Royale", "com.supercell.clashroyale"], ["Claude", "com.anthropic.claude"], ["Clip Studio Paint", "jp.co.celsys.clipstudiopaint.googleplay"], ["Configurações", "com.android.settings"], ["Garmin Connect", "com.garmin.android.apps.connectmobile"], ["Console Launcher", "", "https://play.google.com/store/search?q=Console%20Launcher&c=apps"], ["Contatos", "com.google.android.contacts"], ["Crunchyroll", "com.crunchyroll.crunchyroid"], ["Dan The Man", "com.halfbrick.dantheman"], ["Auto Clicker", "", "https://play.google.com/store/search?q=auto%20clicker&c=apps"], ["AutoResponder", "", "https://play.google.com/store/search?q=autoresponder&c=apps"], ["Bloco de notas", "", "https://play.google.com/store/search?q=notes&c=apps"], ["Block Blast!", "comHungryStudio.blockblast"], ["Blockman GO", "com.sandboxol.blockymods"], ["Brawl Stars", "com.supercell.brawlstars"], ["Google Chrome", "com.android.chrome"], ["Google Drive", "com.google.android.apps.docs"], ["Gmail", "com.google.android.gm"], ["Google Maps", "com.google.android.apps.maps"], ["YouTube", "com.google.android.youtube"], ["Netflix", "com.netflix.mediaclient"], ["Amazon Shopping", "com.amazon.mShop.android.shopping"], ["Google Fotos", "com.google.android.apps.photos"], ["Google Assistant", "com.google.android.googlequicksearchbox"]];
+
+function makeAppLink(app){
+ const [name,pkg,fallback]=app;
+ const a=document.createElement('a');
+ a.href=pkg ? ('intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package='+encodeURIComponent(pkg)+';end') : (fallback||('https://play.google.com/store/search?q='+encodeURIComponent(name)+'&c=apps'));
+ a.textContent=name;
+ a.title=pkg?'Tentar abrir o aplicativo instalado':'Abrir página de busca do aplicativo';
+ a.addEventListener('click',()=>{$('messageStatus').textContent='Tentando abrir '+name+'. Se não abrir, o Android pode não permitir o atalho direto para este app.';});
+ return a;
+}
+jarvisApps.forEach(app=>$('appLinks').appendChild(makeAppLink(app)));
+
+function messageData(){
+ const name=$('contactName').value.trim();
+ const raw=$('contactPhone').value.trim();
+ const phone=raw.replace(/\D/g,'');
+ const body=$('messageText').value.trim();
+ if(!phone||phone.length<10||phone.length>13){$('messageStatus').textContent='Digite um número válido com DDD. Exemplo: 77999998888.';return null;}
+ if(!body){$('messageStatus').textContent='Escreva a mensagem antes de continuar.';return null;}
+ return {name,phone,body};
+}
+$('prepareWhats').onclick=()=>{
+ const d=messageData();if(!d)return;
+ const url='https://wa.me/'+d.phone+'?text='+encodeURIComponent(d.body);
+ $('messageStatus').textContent='Abrindo o WhatsApp para '+(d.name||d.phone)+'. Confira o destinatário e a mensagem antes de enviar.';
+ window.open(url,'_blank');
+};
+$('prepareSms').onclick=()=>{
+ const d=messageData();if(!d)return;
+ const url='sms:'+d.phone+'?body='+encodeURIComponent(d.body);
+ $('messageStatus').textContent='Abrindo o aplicativo de SMS. Confira o destinatário e toque em enviar no aplicativo.';
+ window.location.href=url;
+};
+
+</script></body></html>
